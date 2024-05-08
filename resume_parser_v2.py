@@ -124,10 +124,9 @@ def extract_name(resume_text):
  
     return None
  
- 
 def count_experience_months(resume_text):
     # Define a pattern to match variations of the experience section title
-    experience_pattern = re.compile(r'(?:EXPÉRIENCES PROFESSIONNELLES?|EXPÉRIENCE PROFESSIONNELLE|Exp[ée]riences\s+Professionnelles?|Exp[ée]rienc\s+es\s+pr\s+ofessionnelles?|EXPÉRIENCES?:)', re.IGNORECASE)
+    experience_pattern = re.compile(r'(?:EXPÉRIENCES PROFESSIONNELLES?|EXPÉRIENCE PROFESSIONNELLE|Professional Experiences & Projects|Exp[ée]riences\s+Professionnelles?|Exp[ée]rienc\s+es\s+pr\s+ofessionnelles?|EXPÉRIENCES?:)', re.IGNORECASE)
  
     # Initialize a flag to track if we are within the experience section
     within_experiences_section = False
@@ -153,6 +152,7 @@ def count_experience_months(resume_text):
  
         # Check if we are within the experience section
         if within_experiences_section:
+           
             # 1. Check if the line contains date ranges in the format "De février 2024 à juillet 2024"
             matches1 = re.findall(r'(?:De|du) (\w+) (\d{4}) (?:à|au) (\w+) (\d{4})', line)
             if matches1:
@@ -168,8 +168,8 @@ def count_experience_months(resume_text):
                 for start_month, start_year, end_month, end_year in matches2:
                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (int(end_month) - int(start_month)) + 1
  
-            # 3. Check if the line contains date ranges in the format "04/2023 - 07/2023"
-            matches3 = re.findall(r'(\d{2})/(\d{4}) - (\d{2})/(\d{4})', line)
+            # 3. Check if  the line contains date ranges in the format "04/2023 - 07/2023" or "2/2024-7/2024"
+            matches3 = re.findall(r'(\d{1,2})[/-](\d{4})\s*-\s*(\d{1,2})[/-](\d{4})', line)
             if matches3 and not matches2:
                 for start_month, start_year, end_month, end_year in matches3:
                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (int(end_month) - int(start_month)) + 1
@@ -188,6 +188,71 @@ def count_experience_months(resume_text):
     remaining_months = int(total_months_worked % 12)
  
     return total_years;
+ 
+
+# def count_experience_months(resume_text):
+#     # Define a pattern to match variations of the experience section title
+#     experience_pattern = re.compile(r'(?:EXPÉRIENCES PROFESSIONNELLES?|EXPÉRIENCE PROFESSIONNELLE|Exp[ée]riences\s+Professionnelles?|Exp[ée]rienc\s+es\s+pr\s+ofessionnelles?|EXPÉRIENCES?:)', re.IGNORECASE)
+ 
+#     # Initialize a flag to track if we are within the experience section
+#     within_experiences_section = False
+#     # Initialize variables to store total months worked
+#     total_months_worked = 0
+ 
+#     # French month names mapping
+#     french_months = {
+#         'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
+#         'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
+#         'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12
+#     }
+ 
+#     # Split the resume text by lines
+#     lines = resume_text.split('\n')
+ 
+#     # Iterate through each line
+#     for line in lines:
+#         # Check if the line matches the experience section pattern
+#         if re.search(experience_pattern, line):
+#             within_experiences_section = True
+#             continue  # Skip to the next line
+ 
+#         # Check if we are within the experience section
+#         if within_experiences_section:
+#             # 1. Check if the line contains date ranges in the format "De février 2024 à juillet 2024"
+#             matches1 = re.findall(r'(?:De|du) (\w+) (\d{4}) (?:à|au) (\w+) (\d{4})', line)
+#             if matches1:
+#                 for start_month, start_year, end_month, end_year in matches1:
+ 
+#                     start_month_num = french_months.get(start_month.lower())
+#                     end_month_num = french_months.get(end_month.lower())
+#                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (end_month_num - start_month_num) + 1
+ 
+#             # 2. Check if the line contains date ranges in the format "04-2023 - 07-2023"
+#             matches2 = re.findall(r'(\d{2})-(\d{4}) - (\d{2})-(\d{4})', line)
+#             if matches2 and not matches1:
+#                 for start_month, start_year, end_month, end_year in matches2:
+#                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (int(end_month) - int(start_month)) + 1
+ 
+#             # 3. Check if the line contains date ranges in the format "04/2023 - 07/2023"
+#             matches3 = re.findall(r'(\d{2})/(\d{4}) - (\d{2})/(\d{4})', line)
+#             if matches3 and not matches2:
+#                 for start_month, start_year, end_month, end_year in matches3:
+#                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (int(end_month) - int(start_month)) + 1
+ 
+#             # 4. Check if the line contains date ranges in the format "10 Juillet 2023 - 30 août 2023"
+#             matches4 = re.findall(r'(\d{1,2}) (\w+) (\d{4}) - (\d{1,2}) (\w+) (\d{4})', line)
+#             if matches4 and not matches3:
+#                 for start_day, start_month, start_year, end_day, end_month, end_year in matches4:
+#                     start_month_num = french_months.get(start_month.lower())
+#                     end_month_num = french_months.get(end_month.lower())
+#                     total_months_worked += (int(end_year) - int(start_year)) * 12 + (end_month_num - start_month_num) + 1
+ 
+#     print(total_months_worked)
+#     # Convert total months worked into years and months
+#     total_years = total_months_worked / 12
+#     remaining_months = int(total_months_worked % 12)
+ 
+#     return total_years;
  
 def extract_linkedin(resume_text):
     # Define a regular expression pattern to match LinkedIn profile URLs
@@ -255,7 +320,7 @@ def extract_all_data(path):
         if lkdn:
             response['linkedin'] = lkdn
         else:
-            print("No linkedin found")
+            print("No Years experience found")
         
         
         return response
