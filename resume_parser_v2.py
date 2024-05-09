@@ -266,11 +266,11 @@ def extract_all_data(path):
  
     for resume_path in resume_paths:
         text = extract_text_from_pdf(resume_path)
-        filename = get_filename_without_extension(resume_path)
-        similar_strings = find_similar_strings_in_document(text,filename)
-        print(similar_strings)
+        # filename = get_filename_without_extension(resume_path)
+        # similar_strings = find_similar_strings_in_document(text,filename)
+        # print(similar_strings)
  
-        print("Resume:", resume_path)
+        # print("Resume:", resume_path)
         response = dict()
  
  
