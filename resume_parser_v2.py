@@ -4,7 +4,21 @@ from fuzzywuzzy import process
 from pdfminer.high_level import extract_text
 import spacy
 from spacy.matcher import Matcher
- 
+import time
+
+#code to run for extracting name
+nlp = spacy.load('fr_core_news_sm')
+print('nlp loaded')
+matcher = Matcher(nlp.vocab)
+# Define name patterns
+patterns = [
+    [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}],  # First name and Last name
+    [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}],  # First name, Middle name, and Last name
+    [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}]  # First name, Middle name, Middle name, and Last name
+]
+
+for pattern in patterns:
+    matcher.add('NAME', patterns=[pattern])
  
 def get_filename_without_extension(file_path):
  
@@ -102,18 +116,7 @@ def extract_education_from_resume(text):
  
  
 def extract_name(resume_text):
-    nlp = spacy.load('fr_core_news_sm')
-    matcher = Matcher(nlp.vocab)
- 
-    # Define name patterns
-    patterns = [
-        [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}],  # First name and Last name
-        [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}],  # First name, Middle name, and Last name
-        [{'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}, {'IS_ALPHA': True, 'OP': '+'}]  # First name, Middle name, Middle name, and Last name
-    ]
- 
-    for pattern in patterns:
-        matcher.add('NAME', patterns=[pattern])
+    
  
     doc = nlp(resume_text)
     matches = matcher(doc)
@@ -265,7 +268,9 @@ def extract_all_data(path):
     resume_paths = [path]
  
     for resume_path in resume_paths:
+        print("before : ",time.time())
         text = extract_text_from_pdf(resume_path)
+        print("after : ",time.time())
         # filename = get_filename_without_extension(resume_path)
         # similar_strings = find_similar_strings_in_document(text,filename)
         # print(similar_strings)
@@ -277,21 +282,21 @@ def extract_all_data(path):
         name = extract_name(text)
         response['name'] = name
         if name:
-            print("Name:", name)
+            print(time.time(),' ',"Name:", name)
         else:
             print("Name not found")
  
         contact_number = extract_contact_number_from_resume(text)
         if contact_number:
             response['contact_number'] = contact_number
-            print("Contact Number:", contact_number.replace('\n',''))
+            print(time.time(),' ',"Contact Number:", contact_number.replace('\n',''))
         else:
             print("Contact Number not found")
  
         email = extract_email_from_resume(text)
         if email:
             response['email'] = email
-            print("Email:", email)
+            print(time.time(),' ',"Email:", email)
         else:
             print("Email not found")
  
@@ -299,14 +304,14 @@ def extract_all_data(path):
         extracted_skills = extract_skills_from_resume(text, skills_list)
         if extracted_skills:
             response['extracted_skills'] = extracted_skills
-            print("Skills:", extracted_skills)
+            print(time.time(),' ',"Skills:", extracted_skills)
         else:
             print("No skills found")
  
         extracted_education = extract_education_from_resume(text)
         if extracted_education:
             response['education'] = extracted_education
-            print("Education:", extracted_education)
+            print(time.time(),' ',"Education:", extracted_education)
         else:
             print("No education information found")
 
